@@ -1,0 +1,28 @@
+name: "Frontend CI Pipeline"
+
+on:
+    push:
+        branches: [develop]
+        paths: ['frontend/**']
+
+jobs:
+    frontend:
+        runs-on: ubuntu-latest
+        defaults:
+            run: 
+                working-directory: frontend
+        steps:
+
+            - name: Verificar codigo
+              uses: actions/checkout@v3
+
+            - name: Configurar Node
+              uses: actions/setup-node@v3
+              with:
+                node=version: '21'
+
+            - name: Instalar dependencias
+              run: npm install
+
+            - name: Fazer build
+              run: npm run build
