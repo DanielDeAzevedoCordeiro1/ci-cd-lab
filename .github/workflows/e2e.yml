@@ -1,0 +1,39 @@
+name: End-to-End Tests
+
+on:
+  push:
+    branches: [develop]
+    paths: ['frontend/**', 'backend/**']
+
+jobs:
+    e2e-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checagem do codigo
+              uses: actions/checkout@v3
+
+            - name: Instalar Node.js
+              uses: actions/setup-node@v3
+              with:
+                node-version: '21'
+
+            - name: Instalar dependencias do backend
+              working-directory: backend
+              run: npm install
+
+            - name: Rodar backend
+              working-directory: backend
+              run: |
+                npm run build
+                npm start &
+
+            - name: Aguardar backend iniciar
+              run: npx wait-on http://localhost:3000/users
+              
+            - name: Install dependencias do frontend
+              working-directory: frontend
+              run: npm install
+
+            - name: Rodar testes e2e
+              working-directory: frontend
+              run: npm run test:run
