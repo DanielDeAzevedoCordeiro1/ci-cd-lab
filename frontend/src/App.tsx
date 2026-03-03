@@ -85,7 +85,6 @@ function App() {
         
         <div className="buttons">
           <button type="submit">Salvar</button>
-          <button type="button" onClick={fetchUsers}>Buscar Todos</button>
         </div>
       </form>
 
