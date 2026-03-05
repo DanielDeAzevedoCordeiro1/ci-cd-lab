@@ -1,0 +1,51 @@
+name: "Backend CD Pipeline"
+
+on:
+    push:
+        branches: [develop]
+        paths: ['backend/**']
+
+jobs:
+    deploy-backend:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Baixa o codigo
+              uses: actions/checkout@v3
+
+            - name: Config AWS
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: ${{ secrets.AWS_REGION }}
+
+            - name: Login no ECR
+              uses: aws-actions/amazon-ecr-login@v2
+
+            - name: Build e push da imagem Docker
+              working-directory: backend
+              run: |
+                ECR_URI=${{ secrets.ECR_REPOSITORY }}
+                docker build -t $ECR_URI:latest -t $ECR_URI:${{ github.sha }} .
+                docker push $ECR_URI:latest
+                docker push $ECR_URI:${{ github.sha }}
+
+            - name: Deploy na EC2 via SSH
+              uses: appleboy/ssh-action@v1
+              with:
+                host: ${{ secrets.EC2_HOST }}
+                username: ${{ secrets.EC2_USER }}
+                key: ${{ secrets.EC2_SSH_KEY }}
+                script: |
+                  aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+
+                  docker stop cobaia-backend || true
+                  docker rm cobaia-backend || true
+                  docker pull ${{ secrets.ECR_REPOSITORY }}:latest
+
+                  docker run -d \
+                    --name cobaia-backend \
+                    -p 3000:3000 \
+                    --restart unless-stopped \
+                    ${{ secrets.ECR_REPOSITORY }}:latest
