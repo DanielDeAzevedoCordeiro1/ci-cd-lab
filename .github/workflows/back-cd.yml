@@ -2,7 +2,7 @@ name: "Backend CD Pipeline"
 
 on:
     push:
-        branches: [develop]
+        branches: [master]
         paths:
             - 'backend/**'
             - '.github/workflows/back-cd.yml'

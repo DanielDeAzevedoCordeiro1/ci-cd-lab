@@ -1,7 +1,7 @@
 name: "Frontend CI Pipeline"
 
 on:
-    push:
+    pull_request:
         branches: [develop]
         paths: ['frontend/**']
 
@@ -19,7 +19,7 @@ jobs:
             - name: Configurar Node
               uses: actions/setup-node@v3
               with:
-                node=version: '21'
+                node-version: '21'
 
             - name: Instalar dependencias
               run: npm install
