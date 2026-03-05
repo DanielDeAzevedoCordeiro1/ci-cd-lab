@@ -13,7 +13,7 @@ jobs:
         environment: prod
 
         steps:
-            - name: Baixa o codigo
+            - name: Baixa o codigo do repositorio
               uses: actions/checkout@v3
 
             - name: Config AWS
