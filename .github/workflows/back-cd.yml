@@ -3,7 +3,9 @@ name: "Backend CD Pipeline"
 on:
     push:
         branches: [develop]
-        paths: ['backend/**']
+        paths:
+            - 'backend/**'
+            - '.github/workflows/back-cd.yml'
 
 jobs:
     deploy-backend:
@@ -41,8 +43,7 @@ jobs:
                 script: |
                   aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
 
-                  docker stop cobaia-backend || true
-                  docker rm cobaia-backend || true
+                  docker system prune -af
                   docker pull ${{ secrets.ECR_REPOSITORY }}:latest
 
                   docker run -d \
