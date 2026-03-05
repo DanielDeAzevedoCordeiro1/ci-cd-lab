@@ -26,7 +26,7 @@ jobs:
             - name: Login no ECR
               uses: aws-actions/amazon-ecr-login@v2
 
-            - name: Build e push da imagem Docker
+            - name: Build e push imagem Docker
               working-directory: backend
               run: |
                 ECR_URI=${{ secrets.ECR_REPOSITORY }}
