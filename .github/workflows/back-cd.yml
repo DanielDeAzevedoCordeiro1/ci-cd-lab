@@ -8,6 +8,7 @@ on:
 jobs:
     deploy-backend:
         runs-on: ubuntu-latest
+        environment: prod
 
         steps:
             - name: Baixa o codigo
