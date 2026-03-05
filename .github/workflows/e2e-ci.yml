@@ -2,7 +2,7 @@ name: End-to-End Tests
 
 on:
   pull_request:
-    branches: [develop]
+    branches: [develop, master]
     paths: ['frontend/**', 'backend/**']
 
 jobs:
