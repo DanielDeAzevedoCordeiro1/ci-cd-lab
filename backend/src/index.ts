@@ -39,7 +39,7 @@ app.delete('/users/:id', async (request, reply) => {
   const index = users.findIndex((user) => user.id === id);
 
   if (index === -1) {
-    return reply.status(404).send({ error: 'Not Found' });
+    return reply.status(404).send({ error: 'Tem nada aqui nao' });
   }
 
   const deleted = users.splice(index, 1);
