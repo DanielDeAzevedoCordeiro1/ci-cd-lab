@@ -2,7 +2,7 @@ name: "Frontend CI Pipeline"
 
 on:
     pull_request:
-        branches: [develop]
+        branches: [develop, master]
         paths: ['frontend/**']
 
 jobs:
