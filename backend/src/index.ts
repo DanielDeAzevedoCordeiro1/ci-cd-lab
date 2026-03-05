@@ -1,7 +1,7 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
-import { User, UserInput } from './interfaces/User';
-import { soma } from './utils/soma';
+import { User, UserInput } from './interfaces/User.js';
+import { soma } from './utils/soma.js';
 
 
 const app = Fastify({ logger: true });
