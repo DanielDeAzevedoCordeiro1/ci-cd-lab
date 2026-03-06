@@ -10,10 +10,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checagem do codigo
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Instalar Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
                 node-version: '21'
 
@@ -23,12 +23,14 @@ jobs:
 
             - name: Rodar backend
               working-directory: backend
+              env:
+                MONGODB_URI: ${{ secrets.MONGODB_URI }}
               run: |
                 npm run build
                 npm start &
 
             - name: Aguardar backend iniciar
-              run: npx wait-on http://localhost:3000/users
+              run: npx wait-on http://localhost:3000/api/users
               
             - name: Install dependencias do frontend
               working-directory: frontend
