@@ -14,6 +14,10 @@ app.register(cors, {
   methods: ['GET', 'POST', 'DELETE'],
 });
 
+app.get('/health', async () => {
+  return { status: 'ok' };
+});
+
 app.get('/api/users', async () => {
   const num = soma(2, 3);
   const subt = sub(5, 2);
