@@ -1,7 +1,7 @@
 import { test, expect, vi} from 'vitest';
 
 test("Tenta criar um usuario com nome e senha", async () => {
-    const apiURL = "http://localhost:3000/users";
+    const apiURL = "http://localhost:3000/api/users";
 
     const response = await fetch(apiURL, {
         method: "POST",
