@@ -14,7 +14,7 @@ jobs:
 
         steps:
             - name: Baixa o codigo do repositorio
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Config AWS
               uses: aws-actions/configure-aws-credentials@v4
@@ -43,7 +43,9 @@ jobs:
                 script: |
                   aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
 
-                  docker system prune -af
+                  docker stop cobaia-backend || true
+                  docker rm cobaia-backend || true
+                  docker system prune -f
                   docker pull ${{ secrets.ECR_REPOSITORY }}:latest
 
                   docker run -d \
