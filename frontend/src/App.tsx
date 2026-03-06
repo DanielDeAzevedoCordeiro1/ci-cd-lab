@@ -6,7 +6,7 @@ interface User {
   senha: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = 'https://imo-tech.tech';
 
 function App() {
   const [nome, setNome] = useState('');
@@ -15,7 +15,7 @@ function App() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`${API_URL}/users`);
+      const res = await fetch(`${API_URL}/api/users`);
       const data = await res.json();
       setUsers(data);
     } catch (error) {
@@ -30,7 +30,7 @@ function App() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${API_URL}/users`, {
+      const res = await fetch(`${API_URL}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome, senha }),
@@ -47,7 +47,7 @@ function App() {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`${API_URL}/users/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/api/users/${id}`, { method: 'DELETE' });
       if (res.ok) {
         fetchUsers();
       }
