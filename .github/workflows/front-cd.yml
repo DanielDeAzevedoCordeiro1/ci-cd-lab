@@ -4,7 +4,7 @@ on:
   push:
     branches: [master]
     paths:
-      - "front-end/**"
+      - "frontend/**"
       - ".github/workflows/front-cd.yml"
 
 jobs:
@@ -23,11 +23,11 @@ jobs:
           node-version: '21'
 
       - name: Instalando dependencias
-        working-directory: front-end
+        working-directory: frontend
         run: npm ci
 
       - name: Buildando o projeto
-        working-directory: front-end
+        working-directory: frontend
         run: npm run build
       
       - name: Configurando AWS
