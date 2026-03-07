@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 interface User {
   id: string;
+  _id?: string;
   nome: string;
   senha: string;
 }
@@ -95,9 +96,9 @@ function App() {
         ) : (
           <ul>
             {users.map((user) => (
-              <li key={user.id}>
+              <li key={user.id ?? user._id}>
                 <span>{user.nome}</span>
-                <button onClick={() => handleDelete(user.id)}>Deletar</button>
+                <button onClick={() => handleDelete(user.id ?? user._id ?? '')}>Deletar</button>
               </li>
             ))}
           </ul>
