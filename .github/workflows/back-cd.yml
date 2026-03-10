@@ -1,59 +1,76 @@
-name: "Backend CD Pipeline"
+name: Backend CD Pipeline
 
 on:
-    push:
-        branches: [master]
-        paths:
-            - 'backend/**'
-            - '.github/workflows/back-cd.yml'
+  push:
+    branches: [master]
+    paths:
+      - "backend/**"
+      - ".github/workflows/back-cd.yml"
 
 jobs:
-    deploy-backend:
-        runs-on: ubuntu-latest
-        environment: prod
+  deploy-backend:
+    runs-on: ubuntu-latest
+    environment: prod
 
-        steps:
-            - name: Baixa o codigo do repositorio
-              uses: actions/checkout@v4
+    permissions:
+      id-token: write
+      contents: read
 
-            - name: Config AWS
-              uses: aws-actions/configure-aws-credentials@v4
-              with:
-                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                aws-region: ${{ secrets.AWS_REGION }}
+    steps:
+      - name: Baixa o codigo do repositorio
+        uses: actions/checkout@v4
 
-            - name: Login no ECR
-              uses: aws-actions/amazon-ecr-login@v2
+      - name: Configurar credenciais AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-            - name: Build e push imagem Docker
-              working-directory: backend
-              run: |
-                ECR_URI=${{ secrets.ECR_REPOSITORY }}
-                docker build -t $ECR_URI:latest -t $ECR_URI:${{ github.sha }} .
-                docker push $ECR_URI:latest
-                docker push $ECR_URI:${{ github.sha }}
+      - name: Login no ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-            - name: Deploy na EC2 via SSH
-              env:
-                MONGODB_URI: ${{ secrets.MONGODB_URI }}
-              uses: appleboy/ssh-action@v1
-              with:
-                host: ${{ secrets.EC2_HOST }}
-                username: ${{ secrets.EC2_USER }}
-                key: ${{ secrets.EC2_SSH_KEY }}
-                envs: MONGODB_URI 
-                script: |
-                  aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+      - name: Build e push da imagem Docker
+        working-directory: backend
+        run: |
+          ECR_URI=${{ secrets.ECR_REPOSITORY }}
 
-                  docker stop cobaia-backend || true
-                  docker rm cobaia-backend || true
-                  docker system prune -f
-                  docker pull ${{ secrets.ECR_REPOSITORY }}:latest
+          docker build -t $ECR_URI:latest -t $ECR_URI:${{ github.sha }} .
 
-                  docker run -d \
-                    --name cobaia-backend \
-                    -p 3000:3000 \
-                    -e MONGODB_URI="${MONGODB_URI}" \
-                    --restart unless-stopped \
-                    ${{ secrets.ECR_REPOSITORY }}:latest
+          docker push $ECR_URI:latest
+          docker push $ECR_URI:${{ github.sha }}
+
+      - name: Deploy na EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+
+            echo "Login no ECR"
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
+            | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+
+            echo "Parando container antigo"
+            docker stop cobaia-backend || true
+            docker rm cobaia-backend || true
+
+            echo "Limpando imagens antigas"
+            docker system prune -f
+
+            echo "Pull da nova imagem"
+            docker pull ${{ secrets.ECR_REPOSITORY }}:latest
+
+            echo "Buscando MongoDB URI no Secrets Manager"
+            MONGODB_URI=$(aws secretsmanager get-secret-value \
+              --secret-id mongodb_uri \
+              --query SecretString \
+              --output text)
+
+            echo "Subindo container"
+            docker run -d \
+              --name cobaia-backend \
+              -p 3000:3000 \
+              -e MONGODB_URI="$MONGODB_URI" \
+              --restart unless-stopped \
+              ${{ secrets.ECR_REPOSITORY }}:latest
