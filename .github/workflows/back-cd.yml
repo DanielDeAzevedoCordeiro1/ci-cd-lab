@@ -63,9 +63,9 @@ jobs:
 
             echo "Buscando MongoDB URI no Secrets Manager"
             MONGODB_URI=$(aws secretsmanager get-secret-value \
-              --secret-id mongodb_uri \
-              --query SecretString \
-              --output text)
+            --secret-id prod/backend/app-secrets \
+            --query SecretString \
+            --output text | jq -r '.MONGODB_URI')
 
             echo "Subindo container"
             docker run -d \
