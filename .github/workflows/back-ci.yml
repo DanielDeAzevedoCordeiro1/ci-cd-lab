@@ -42,13 +42,13 @@ jobs:
         with:
           projectBaseDir: backend
           args: >
-            -Dsonar.projectKey=ci-cd-lab
+            -Dsonar.projectKey=DanielDeAzevedoCordeiro1_ci-cd-lab
             -Dsonar.organization=danieldeazevedocordeiro1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
 
-      - name: SonarQube Quality Gate Check
+      - name: SonarQube Quality Gate check
         uses: sonarsource/sonarqube-quality-gate-action@v1.1.0
         with:
           pollingTimeoutSec: 600
