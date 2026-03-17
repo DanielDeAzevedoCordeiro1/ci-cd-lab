@@ -48,7 +48,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
 
-      - name: SonarQube Quality Gate check
+      - name: SonarQube Quality Gate Check
         uses: sonarsource/sonarqube-quality-gate-action@v1.1.0
         with:
           pollingTimeoutSec: 600
