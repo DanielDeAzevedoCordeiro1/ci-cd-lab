@@ -1,34 +1,57 @@
 name: Backend CI Pipeline
 
 on:
-    pull_request:
-        branches: 
-          - develop
-          - master
-    push:
-        branches:
-          - develop
-          - master
-        
+  pull_request:
+    branches:
+      - develop       
+      - master     
+  push:
+    branches:
+      - develop
+      - master 
+
 jobs:
-    backend:
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: backend
+  backend:
+    runs-on: ubuntu-latest
+    environment: dev
 
-        steps:
+    defaults:
+      run:
+        working-directory: backend
 
-            - name: Checagem do codigo
-              uses: actions/checkout@v4
-              
-            - name: Configurar Node
-              uses: actions/setup-node@v4
-              with:
-                node-version: '21'
+    steps:
 
-            - name: Instalar dependencias
-              run: npm install
+      - name: Checagem do codigo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Fazer build
-              run: npm run build
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Fazer build
+        run: npm run build
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarqube-scan-action@v6
+        with:
+          projectBaseDir: backend
+          args: >
+            -Dsonar.projectKey=DanielDeAzevedoCordeiro1_ci-cd-lab
+            -Dsonar.organization=danieldeazevedocordeiro1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+
+      - name: SonarQube Quality Gate check
+        uses: sonarsource/sonarqube-quality-gate-action@v1.1.0
+        with:
+          scanMetadataReportFile: backend/.scannerwork/report-task.txt
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
