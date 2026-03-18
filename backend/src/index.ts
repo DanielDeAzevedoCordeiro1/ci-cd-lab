@@ -3,8 +3,6 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import mongoose from 'mongoose';
 import { UserInput } from './interfaces/User.js';
-import { soma } from './utils/soma.js';
-import { sub } from './utils/sub.js';
 import { connectDB } from './config/database.js';
 import { UserModel } from './models/User.js';
 
@@ -28,8 +26,6 @@ app.get('/health', async () => {
 });
 
 app.get('/api/users', async () => {
-  const num = soma(2, 3);
-  const subt = sub(5, 2);
   const users = await UserModel.find();
   return users.map(formatUser);
 });
